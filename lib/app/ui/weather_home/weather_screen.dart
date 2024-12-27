@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:weather_app/app/ui/weather_home/weather_section.dart';
 import 'package:weather_app/app/viewmodel/weather_home_viewmodel/weather_home_viewmodel.dart';
 
-import '../components/custom_text_widget.dart';
 import 'forecast_section.dart';
 
 class WeatherScreen extends GetView<WeatherHomeController> {
@@ -13,22 +12,19 @@ class WeatherScreen extends GetView<WeatherHomeController> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'Weather Application',
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.blueAccent[100],
-        ),
         body: Stack(
           children: [
             // Background image
             Positioned.fill(
               child: Image.asset(
+                height: screenHeight,
                 'assets/images/beautiful_skyscape_daytime.jpg',
-                fit: BoxFit.cover,
+                fit: BoxFit.fitHeight,
               ),
             ),
             // Blur effect
@@ -40,15 +36,23 @@ class WeatherScreen extends GetView<WeatherHomeController> {
                 ),
               ),
             ),
-            const Column(
+            Column(
               children: [
-                SizedBox(height: 50),
-                WeatherSection(),
-                SizedBox(height: 30,),
-                Expanded(
-                  child: ForecastSection(),
+                const SizedBox(
+                  height: 10,
                 ),
-                SizedBox(height: 20,)
+                IntrinsicHeight(
+                  child: Obx(() {
+                    return controller.isLoading.value
+                        ? const SizedBox(
+                            height: 200,
+                            child: Center(child: CircularProgressIndicator()))
+                        : WeatherSection(screenWidth: screenWidth);
+                  }),
+                ),
+                const Spacer(),
+                SizedBox(
+                    height: screenHeight * .3, child: const ForecastSection()),
               ],
             ),
           ],

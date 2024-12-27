@@ -43,8 +43,12 @@ dependencies:
   # Internationalization and localization
   intl: ^0.19.0 # Internationalization and localization support
   flutter_dotenv: ^5.1.0 # Environment variables management
-  path_provider:
+  #location
+  geolocator: ^13.0.2
+  permission_handler:
+  url_launcher: ^6.1.12
   flutter_secure_storage: ^9.2.2 # Secure storage for sensitive data
+  connectivity_plus:
 dev_dependencies:
   flutter_test:
     sdk: flutter

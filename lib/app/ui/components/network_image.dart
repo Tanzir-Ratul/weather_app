@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class NetworkImageSet extends StatelessWidget {
@@ -18,6 +19,9 @@ class NetworkImageSet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (kDebugMode) {
+      print('imageUrl$imageUrl');
+    }
     return Image.network(
       height: height,
       width: width,

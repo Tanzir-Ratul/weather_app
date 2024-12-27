@@ -28,11 +28,17 @@ class  WeatherRepositoryImpl extends WeatherRepository {
       Map<String, dynamic>? data) async {
     try {
       final response = await _apiClient.get(Urls.currentWeather, queryParameters: data ?? {});
-      debugPrint('repos $response');
-      return ApiResponse.completed(CurrentWeatherData.fromJson(response.data),response.statusCode);
-    } on DioException catch (e) {
+      debugPrint('reposfetchCurrentWeather $response');
+      if (response.statusCode == 200) {
+        return ApiResponse.completed(CurrentWeatherData.fromJson(response.data), response.statusCode);
+      } else {
+        return ApiResponse.error('Failed to fetch data with status code: ${response.statusCode}');
+      }    } on DioException catch (e) {
       return ApiResponse.error(handleDioError(e));
-    } catch (e) {
+    } catch (e,stackTrace) {
+      print('errorIn:$e');
+      print('Error parsing data: $e');
+      print('Stack trace: $stackTrace');
       return ApiResponse.error('Unexpected error');
     }
   }
@@ -41,11 +47,12 @@ class  WeatherRepositoryImpl extends WeatherRepository {
   Future<ApiResponse<ForecastData>> fetchForecastData(Map<String, dynamic>? data) async{
     try {
       final response = await _apiClient.get(Urls.forecast, queryParameters: data ?? {});
-      debugPrint('repos $response');
+      debugPrint('reposfetchForecastData $response');
       return ApiResponse.completed(ForecastData.fromJson(response.data),response.statusCode);
     } on DioException catch (e) {
       return ApiResponse.error(handleDioError(e));
     } catch (e) {
+      print('error:$e');
       return ApiResponse.error('Unexpected error');
     }
   }

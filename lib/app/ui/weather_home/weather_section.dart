@@ -1,91 +1,152 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:weather_app/app/ui/components/network_image.dart';
+import 'package:weather_app/app/utils/helper_function.dart';
+import 'package:weather_app/app/viewmodel/weather_home_viewmodel/weather_home_viewmodel.dart';
 
 import '../../utils/constant.dart';
 import '../components/custom_text_widget.dart';
 
-class WeatherSection extends StatelessWidget {
-  const WeatherSection({super.key});
+class WeatherSection extends GetView<WeatherHomeController> {
+  final double screenWidth;
+
+  const WeatherSection({super.key, required this.screenWidth});
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    final isTablet = screenWidth > 600;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        CustomText(
-          text: 'Dhaka',
-          color: Colors.white,
+        Obx(
+          () => CustomText(
+            text:
+                '${controller.weatherData.value.name}, ${controller.weatherData.value.sys?.country}',
+            color: Colors.white,
+            fontSize: 30,
+          ),
         ),
-        CustomText(text: 'Dec 24 2024', color: Colors.white),
-        SizedBox(height: 30),
-        CustomText(
-          text: '25${Constant.degreeSymbol}',
-          fontSize: 70,
-          color: Colors.white,
+        Obx(
+          () => CustomText(
+              text:
+                  Helper.formatTimestamp(controller.weatherData.value.dt ?? 0),
+              color: Colors.white),
         ),
-        SizedBox(height: 30),
-        CustomText(
-          text: 'Feels like 20${Constant.degreeSymbol}C',
-          color: Colors.white,
+        const SizedBox(height: 30),
+        Obx(
+          () => CustomText(
+            text:
+                '${controller.displayedTemperature.toStringAsFixed(1)} ${controller.isCelsius.value ? '°C' : '°F'}',
+            fontSize: 70,
+            color: Colors.white,
+          ),
         ),
-        SizedBox(height: 10),
+        Obx(
+          () => Switch(
+            value: controller.isCelsius.value,
+            onChanged: (newValue) {
+              controller.toggleTemperatureUnit();
+            },
+            activeTrackColor: Colors.lightGreenAccent,
+            activeColor: Colors.green,
+          ),
+        ),
+        const SizedBox(height: 30),
+        Obx(
+          () => CustomText(
+            text:
+                'Feels like ${controller.weatherData.value.main?.feelsLike?.toInt()}${Constant.degreeSymbol}C',
+            color: Colors.white,
+          ),
+        ),
+        //const SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(Icons.percent_sharp),
-            SizedBox(width: 10),
-            CustomText(
-              text: 'Clear Sky',
-              color: Colors.white,
+            Obx(
+              () {
+                final iconLink = Helper.concatIconUrl(
+                    controller.weatherData.value.weather?.first.icon ?? '');
+                if (kDebugMode) {
+                  print('iconLink$iconLink');
+                }
+                return NetworkImageSet(
+                  imageUrl: iconLink,
+                  height: 50,
+                  width: 50,
+                );
+              },
+            ),
+            const SizedBox(width: 10),
+            Obx(
+              () => CustomText(
+                text: controller.weatherData.value.weather?.first.description ?? '',
+                color: Colors.white,
+              ),
             ),
           ],
         ),
-        SizedBox(height: 30),
-        SizedBox(
+        const SizedBox(height: 30),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: isTablet ? 40 : 10),
           height: 100,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-
             children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomText(
-                    text: 'Humidity 71${Constant.degreeSymbol}C',
-                    color: Colors.white,
-                  ),
-                  CustomText(
-                    text: 'Pressure 12000hpa',
-                    color: Colors.white,
-                  ),
-                  CustomText(
-                    text: 'Visibility 1000km',
-                    color: Colors.white,
-                  ),
-                ],
-              ),
-              VerticalDivider(
+              Obx(() => buildWeatherDataColumn()),
+              const VerticalDivider(
                 width: 20,
                 color: Colors.white,
                 thickness: 2,
                 indent: 10,
                 endIndent: 10,
               ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomText(
-                    text: 'Sunrise 05:49',
-                    color: Colors.white,
-                  ),
-                  CustomText(
-                    text: 'Sunset 17:42',
-                    color: Colors.white,
-                  ),
-                ],
+              Obx(
+                () => Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomText(
+                      text:
+                          'Sunrise ${Helper.toFormattedTime(controller.weatherData.value.sys?.sunrise?.toInt() ?? 0)}',
+                      color: Colors.white,
+                    ),
+                    CustomText(
+                      text:
+                          'Sunset ${Helper.toFormattedTime(controller.weatherData.value.sys?.sunset?.toInt() ?? 0)}',
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
+        ),
+      ],
+    );
+  }
+
+  Column buildWeatherDataColumn() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CustomText(
+          text:
+              'Humidity ${controller.weatherData.value.main?.humidity}${Constant.degreeSymbol}C',
+          color: Colors.white,
+        ),
+        CustomText(
+          text: 'Pressure ${controller.weatherData.value.main?.pressure}hpa',
+          color: Colors.white,
+        ),
+        CustomText(
+          text: 'Visibility ${controller.weatherData.value.visibility}km',
+          color: Colors.white,
         ),
       ],
     );

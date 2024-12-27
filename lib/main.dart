@@ -8,6 +8,7 @@ import 'app/binding/initialBinding.dart';
 import 'app/routes/app_routes.dart';
 import 'app/routes/routes_path.dart';
 import 'app/utils/helper_function.dart';
+import 'dart:developer' as developer;
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +18,8 @@ void main() async{
   } catch (e) {
     debugPrint("Error loading .env file: $e");
   }
+  final vmServiceUrl = await developer.Service.getInfo();
+  debugPrint('VM Service URL: ${vmServiceUrl.serverUri}');
   // Lock orientation to portrait mode
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

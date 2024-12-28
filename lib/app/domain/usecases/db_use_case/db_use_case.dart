@@ -17,7 +17,7 @@ class GetWeatherDataUseCase {
 
   GetWeatherDataUseCase(this._repository);
 
-  Future<List<WeatherDataClass>> execute() async {
+  Future<WeatherDataClass> execute() async {
     return await _repository.getWeatherData();
   }
 }

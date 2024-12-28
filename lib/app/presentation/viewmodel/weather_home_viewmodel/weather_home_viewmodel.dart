@@ -49,6 +49,7 @@ class WeatherHomeController extends GetxController with WidgetsBindingObserver {
   void onInit() async {
     super.onInit();
     WidgetsBinding.instance.addObserver(this);
+
     if (kDebugMode) {
       print('connectivity: ${await checkNetworkConnectivity()}');
     }
@@ -66,13 +67,17 @@ class WeatherHomeController extends GetxController with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
       if (kDebugMode) {
         print('inside resume');
       }
-      getLocationAndFetchWeather();
+      if (await checkNetworkConnectivity()) {
+        getLocationAndFetchWeather();
+      }else{
+        offlineDataRetrieve();
+      }
     }
   }
 
@@ -226,14 +231,12 @@ class WeatherHomeController extends GetxController with WidgetsBindingObserver {
           weatherData.value = data;
           temperatureCelsius.value = data.temp ?? 0;
           print('WeatherDataS ${jsonEncode(data.toJson())}');
-          // await deleteWeatherDataUseCase.execute();
+          await deleteWeatherDataUseCase.execute();
           await insertWeatherDataUseCase.execute(data);
         } else {
           print("Error: Weather data is null");
-
         }
-      }
-      else {
+      } else {
         CustomSnackbar.showSnackbar(
             title: "ErrorgetWeatherData", message: '${dto.message}');
       }
@@ -289,7 +292,12 @@ class WeatherHomeController extends GetxController with WidgetsBindingObserver {
   }
 
   void offlineDataRetrieve() async {
-    weatherData.value = getWeatherDataUseCase.execute() as WeatherDataClass;
-    print('inside offline ${weatherData.value}');
+    final data = await getWeatherDataUseCase.execute();
+    weatherData.value = data;
+    temperatureCelsius.value = data.temp ?? 0;
+    isCelsius.value = true;
+    if (kDebugMode) {
+      print("offline${jsonEncode(data)}");
+    }
   }
 }

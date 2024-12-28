@@ -43,6 +43,23 @@ class WeatherDataClass {
       'visibility': visibility ?? 0,
     };
   }
+  // Convert Map back to WeatherDataClass
+  factory WeatherDataClass.fromMap(Map<String, dynamic> map) {
+    return WeatherDataClass(
+      name: map['name'],
+      country: map['country'],
+      dt: map['dt'],
+      temp: map['temp'],
+      feelsLike: map['feelsLike'],
+      icon: map['icon'],
+      description: map['description'],
+      sunrise: map['sunrise'],
+      sunset: map['sunset'],
+      humidity: map['humidity'],
+      pressure: map['pressure'],
+      visibility: map['visibility'],
+    );
+  }
   Map<String, dynamic> toJson() {
     return {
       'name': name,

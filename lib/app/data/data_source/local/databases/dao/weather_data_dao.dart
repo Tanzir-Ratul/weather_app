@@ -5,53 +5,57 @@ import 'package:weather_app/app/utils/constant.dart';
 import '../../../../../domain/entities/weather_data.dart';
 
 
+import 'package:sqflite/sqflite.dart';
+import 'package:weather_app/app/utils/constant.dart';
+
+import '../../../../../domain/entities/weather_data.dart';
+
 class WeatherDataDAO {
-  final Database? db;
+  final Database db;
 
   WeatherDataDAO(this.db);
 
-  // Insert a WeatherDataClass
+  /// Insert a WeatherDataClass
   Future<void> insertWeatherData(WeatherDataClass weatherData) async {
-    try{
-
-      print('Database initialized: $db');
-      print("Inserting data:${weatherData.toJson()} ---- ${weatherData.toMap()}");
-      await db?.insert(
+    try {
+      print("Inserting data: ${weatherData.toJson()}");
+      await db.insert(
         Constant.tableName,
         weatherData.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-    }catch(e){
-      print("inside catch $e");
+      print("Data inserted successfully");
+    } catch (e) {
+      print("Error inserting weather data: $e");
+
     }
   }
 
-  // Fetch all WeatherData
-  Future<List<WeatherDataClass>> fetchWeatherData() async {
-    final List<Map<String, dynamic>>? maps = await db?.query(Constant.tableName);
+  /// Fetch all WeatherData
+  Future<WeatherDataClass> fetchWeatherData() async {
+    try {
+      final List<Map<String, dynamic>>? maps = await db?.query(Constant.tableName);
 
-    return List.generate(maps!.length, (i) {
-      return WeatherDataClass(
-        name: maps[i]['name'],
-        country: maps[i]['country'],
-        dt: maps[i]['dt'],
-        temp: maps[i]['temp'],
-        feelsLike: maps[i]['feelsLike'],
-        icon: maps[i]['icon'],
-        description: maps[i]['description'],
-        sunrise: maps[i]['sunrise'],
-        sunset: maps[i]['sunset'],
-        humidity: maps[i]['humidity'],
-        pressure: maps[i]['pressure'],
-        visibility: maps[i]['visibility'],
-      );
-    });
+      if (maps != null && maps.isNotEmpty) {
+        return WeatherDataClass.fromMap(maps.first);
+      } else {
+        return WeatherDataClass();
+      }
+    } catch (e) {
+      print("Error fetching weather data: $e");
+      return WeatherDataClass();
+    }
   }
 
+
+  /// Delete all WeatherData
   Future<void> deleteAllWeatherData() async {
-    await db?.delete(
-      Constant.tableName, // Table name
-    );
+    try {
+      await db.delete(Constant.tableName);
+      print("All weather data deleted successfully");
+    } catch (e) {
+      print("Error deleting weather data: $e");
+    }
   }
 }
 

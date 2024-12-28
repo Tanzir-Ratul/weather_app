@@ -18,7 +18,10 @@ class  WeatherRepositoryImpl extends WeatherRepository {
   final BaseApiServices _apiClient;
   final DatabaseHelper _databaseHelper;
 
-  WeatherRepositoryImpl(this._apiClient,this._databaseHelper);
+  WeatherRepositoryImpl(this._apiClient,this._databaseHelper){
+    print("WeatherRepository initialized with DatabaseHelper: ${_databaseHelper}");
+
+  }
 
   @override
   Future<ApiResponse<WeatherDataClass>> fetchCurrentWeather (
@@ -62,12 +65,12 @@ class  WeatherRepositoryImpl extends WeatherRepository {
 
   @override
   Future<void> deleteWeatherData() async{
-    return (await _databaseHelper.weatherDataDao).deleteAllWeatherData();
+    return await(await _databaseHelper.weatherDataDao).deleteAllWeatherData();
   }
 
   @override
-  Future<List<WeatherDataClass>> getWeatherData() async{
-    return (await _databaseHelper.weatherDataDao).fetchWeatherData();
+  Future<WeatherDataClass> getWeatherData() async{
+    return await(await _databaseHelper.weatherDataDao).fetchWeatherData();
   }
 
   @override

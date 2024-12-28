@@ -12,6 +12,6 @@ abstract class WeatherRepository {
       Map<String, dynamic>? data);
 
   Future<void> insertWeatherData(WeatherDataClass weatherData);
-  Future<List<WeatherDataClass>> getWeatherData();
+  Future<WeatherDataClass> getWeatherData();
   Future<void> deleteWeatherData();
 }

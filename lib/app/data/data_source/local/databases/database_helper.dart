@@ -47,7 +47,11 @@ class DatabaseHelper {
   WeatherDataDAO? _weatherDao;
 
   Future<WeatherDataDAO> get weatherDataDao async {
-    _weatherDao ??= _weatherDao;
+    final database = await db;
+    if (database == null) {
+      throw Exception("Database is not initialized.");
+    }
+    _weatherDao ??= WeatherDataDAO(database);
     return _weatherDao!;
   }
 

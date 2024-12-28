@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:weather_app/app/ui/components/network_image.dart';
 import 'package:weather_app/app/utils/constant.dart';
 import 'package:weather_app/app/utils/helper_function.dart';
-import 'package:weather_app/app/viewmodel/weather_home_viewmodel/weather_home_viewmodel.dart';
 
+import '../../viewmodel/weather_home_viewmodel/weather_home_viewmodel.dart';
 import '../components/custom_text_widget.dart';
+import '../components/network_image.dart';
 
 class ForecastSection extends GetView<WeatherHomeController> {
   const ForecastSection({super.key});
@@ -20,9 +20,9 @@ class ForecastSection extends GetView<WeatherHomeController> {
       () {
         return ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: controller.forecastData.value.list?.length ?? 0,
+          itemCount: controller.forecastList.length ?? 0,
           itemBuilder: (context, index) {
-            final item = controller.forecastData.value.list?[index];
+            final item = controller.forecastList[index];
             return Padding(
               padding: const EdgeInsets.all(10),
               child: Card(
@@ -38,25 +38,25 @@ class ForecastSection extends GetView<WeatherHomeController> {
                     child: Column(
                       children: [
                         CustomText(
-                          text: Helper.getDayOfWeek(item?.dt ?? 0),
+                          text: Helper.getDayOfWeek(item.dt ?? 0),
                           color: Colors.white,
                         ),
                         const SizedBox(height: 10),
                         CustomText(
-                          text: Helper.toFormattedTime(item?.dt ?? 0),
+                          text: Helper.toFormattedTime(item.dt ?? 0),
                           color: Colors.white,
                         ),
                         const SizedBox(height: 10),
                         Expanded(
                           child: NetworkImageSet(
                             imageUrl: Helper.concatIconUrl(
-                                item?.weather?.first.icon ?? ''),
+                                item.icon ?? ''),
                             fit: BoxFit.fill,
                           ),
                         ),
                         const Spacer(),
                         CustomText(
-                          text: '${item?.main?.temp}${Constant.degreeSymbol}C',
+                          text: '${item.temp}${Constant.degreeSymbol}C',
                           color: Colors.white,
                         ),
                       ],

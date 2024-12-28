@@ -1,10 +1,12 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:weather_app/app/ui/weather_home/weather_section.dart';
-import 'package:weather_app/app/viewmodel/weather_home_viewmodel/weather_home_viewmodel.dart';
+import 'package:weather_app/app/presentation/screens/weather_home/weather_section.dart';
 
+
+import '../../viewmodel/weather_home_viewmodel/weather_home_viewmodel.dart';
 import 'forecast_section.dart';
 
 class WeatherScreen extends GetView<WeatherHomeController> {
@@ -46,7 +48,14 @@ class WeatherScreen extends GetView<WeatherHomeController> {
                     return controller.isLoading.value
                         ? const SizedBox(
                             height: 200,
-                            child: Center(child: CircularProgressIndicator()))
+                            child: Center(
+                              child: SpinKitThreeBounce(
+                                color: Colors.amber,
+                                size: 30.0,
+                                // You can also adjust the animation speed with 'duration'
+                                duration: Duration(milliseconds: 1200),
+                              ),
+                            ),)
                         : WeatherSection(screenWidth: screenWidth);
                   }),
                 ),

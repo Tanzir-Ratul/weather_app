@@ -1,4 +1,4 @@
-class CurrentWeatherData {
+class CurrentWeatherDataDTO {
   Coord? coord;
   List<Weather>? weather;
   String? base;
@@ -13,7 +13,7 @@ class CurrentWeatherData {
   String? name;
   int? cod;
 
-  CurrentWeatherData({
+  CurrentWeatherDataDTO({
     this.coord,
     this.weather,
     this.base,
@@ -29,7 +29,7 @@ class CurrentWeatherData {
     this.cod,
   });
 
-  CurrentWeatherData.fromJson(Map<String, dynamic> json) {
+  CurrentWeatherDataDTO.fromJson(Map<String, dynamic> json) {
     coord = json['coord'] != null ? Coord.fromJson(json['coord']) : null;
     if (json['weather'] != null) {
       weather = <Weather>[];

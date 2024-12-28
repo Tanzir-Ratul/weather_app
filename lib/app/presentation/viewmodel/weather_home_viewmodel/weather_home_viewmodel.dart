@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -5,23 +6,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:weather_app/app/data/data_source/network/response/status.dart';
-import 'package:weather_app/app/data/model/current_weather_data.dart';
-import 'package:weather_app/app/data/model/forecast_data.dart';
+import 'package:weather_app/app/domain/entities/forecast_data.dart';
+import 'package:weather_app/app/domain/usecases/forecast_use_case/forecast_use_case.dart';
 
-import '../../data/repository/weather_repo.dart';
-import '../../ui/components/CustomSnackbar.dart';
-import '../../utils/helper_function.dart';
+import '../../../domain/entities/weather_data.dart';
+import '../../../domain/usecases/db_use_case/db_use_case.dart';
+import '../../../domain/usecases/weather_use_case/weather_use_case.dart';
+import '../../../utils/helper_function.dart';
+import '../../screens/components/CustomSnackbar.dart';
 
 class WeatherHomeController extends GetxController with WidgetsBindingObserver {
-  WeatherRepository repository;
+  final FetchWeatherUseCase fetchWeatherUseCase;
+  final FetchForecastUseCase fetchForecastUseCase;
+  final DeleteWeatherDataUseCase deleteWeatherDataUseCase;
+  final GetWeatherDataUseCase getWeatherDataUseCase;
+  final InsertWeatherDataUseCase insertWeatherDataUseCase;
 
-  WeatherHomeController(this.repository);
+  WeatherHomeController(
+      this.fetchWeatherUseCase,
+      this.fetchForecastUseCase,
+      this.deleteWeatherDataUseCase,
+      this.getWeatherDataUseCase,
+      this.insertWeatherDataUseCase);
 
-  var weatherData = CurrentWeatherData().obs;
-  var forecastData = ForecastData().obs;
+  var weatherData = WeatherDataClass().obs;
+  var forecastList = <ForecastDataClass>[].obs;
   var isLoading = false.obs;
 
   var lat = 54.496648.obs;
@@ -38,7 +49,9 @@ class WeatherHomeController extends GetxController with WidgetsBindingObserver {
   void onInit() async {
     super.onInit();
     WidgetsBinding.instance.addObserver(this);
-    print('connectivity: ${await checkNetworkConnectivity()}');
+    if (kDebugMode) {
+      print('connectivity: ${await checkNetworkConnectivity()}');
+    }
     if (await checkNetworkConnectivity()) {
       getLocationAndFetchWeather();
     } else {
@@ -107,7 +120,11 @@ class WeatherHomeController extends GetxController with WidgetsBindingObserver {
 
     if (permission == LocationPermission.deniedForever) {
       locationMessage.value = 'Location permissions are permanently denied.';
-      openAppSettings();
+      if (Platform.isIOS) {
+        await locationPermissionSettingsDialog();
+      } else {
+        await GeolocatorPlatform.instance.openAppSettings();
+      }
       return;
     }
 
@@ -129,6 +146,7 @@ class WeatherHomeController extends GetxController with WidgetsBindingObserver {
         if (kDebugMode) {
           print('inside dialog');
         }
+        isDialogOpen.value = true;
         return WillPopScope(
           onWillPop: () async => false,
           child: AlertDialog(
@@ -137,9 +155,10 @@ class WeatherHomeController extends GetxController with WidgetsBindingObserver {
                 'Location permissions are permanently denied. Please enable them in app settings to use this feature.'),
             actions: <Widget>[
               TextButton(
-                onPressed: () {
+                onPressed: () async {
                   Navigator.of(context).pop();
-                  openAppSettings();
+                  isDialogOpen.value = false;
+                  await GeolocatorPlatform.instance.openAppSettings();
                 },
                 child: const Text('Open Settings'),
               ),
@@ -197,21 +216,30 @@ class WeatherHomeController extends GetxController with WidgetsBindingObserver {
         'units': 'metric',
         'appid': dotenv.env['API_KEY'] ?? "",
       };
-      final response = await repository.fetchCurrentWeather(data);
+      final dto = await fetchWeatherUseCase.execute(data);
       if (kDebugMode) {
-        print('responseWeather: ${response.data?.toJson()}');
+        //print('responseWeather: ${dto.data?.toJson()}');
       }
-      if (response.status == Status.COMPLETED && response.statusCode == 200) {
-        if (response.data != null) {
-          weatherData.value = response.data ?? CurrentWeatherData();
-          temperatureCelsius.value = weatherData.value.main?.temp ?? 0;
+      if (dto.status == Status.COMPLETED && dto.statusCode == 200) {
+        final data = dto.data;
+        if (data != null) {
+          weatherData.value = data;
+          temperatureCelsius.value = data.temp ?? 0;
+          print('WeatherDataS ${jsonEncode(data.toJson())}');
+          // await deleteWeatherDataUseCase.execute();
+          await insertWeatherDataUseCase.execute(data);
+        } else {
+          print("Error: Weather data is null");
+
         }
-      } else {
+      }
+      else {
         CustomSnackbar.showSnackbar(
-            title: "Error", message: '${response.message}');
+            title: "ErrorgetWeatherData", message: '${dto.message}');
       }
     } catch (e) {
-      CustomSnackbar.showSnackbar(title: "Error", message: '$e');
+      CustomSnackbar.showSnackbar(
+          title: "ErrorgetWeatherDataCatch", message: '$e');
     } finally {
       isLoading.value = false;
     }
@@ -225,20 +253,22 @@ class WeatherHomeController extends GetxController with WidgetsBindingObserver {
         'units': 'metric',
         'appid': dotenv.env['API_KEY'] ?? "",
       };
-      final response = await repository.fetchForecastData(data);
+      final response = await fetchForecastUseCase.execute(data);
       if (kDebugMode) {
-        print('responseWeather: ${response.data?.toJson()}');
+        print('responseWeather: ${response.data}');
       }
       if (response.status == Status.COMPLETED && response.statusCode == 200) {
         if (response.data != null) {
-          forecastData.value = response.data ?? ForecastData();
+          forecastList.clear();
+          forecastList.addAll(response.data as Iterable<ForecastDataClass>);
         }
       } else {
         CustomSnackbar.showSnackbar(
-            title: "Error", message: '${response.message}');
+            title: "ErrorgetForecastData", message: '${response.message}');
       }
     } catch (e) {
-      CustomSnackbar.showSnackbar(title: "Error", message: '$e');
+      CustomSnackbar.showSnackbar(
+          title: "ErrorgetForecastDataCatch", message: '$e');
     }
   }
 
@@ -258,5 +288,8 @@ class WeatherHomeController extends GetxController with WidgetsBindingObserver {
     }
   }
 
-  void offlineDataRetrieve() {}
+  void offlineDataRetrieve() async {
+    weatherData.value = getWeatherDataUseCase.execute() as WeatherDataClass;
+    print('inside offline ${weatherData.value}');
+  }
 }

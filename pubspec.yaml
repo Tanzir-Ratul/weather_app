@@ -39,7 +39,8 @@ dependencies:
 
   # Database and storage
   sqflite: # SQLite database support
-
+  path_provider:
+  path:
   # Internationalization and localization
   intl: ^0.19.0 # Internationalization and localization support
   flutter_dotenv: ^5.1.0 # Environment variables management
@@ -49,6 +50,7 @@ dependencies:
   url_launcher: ^6.1.12
   flutter_secure_storage: ^9.2.2 # Secure storage for sensitive data
   connectivity_plus:
+  flutter_spinkit: ^5.2.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

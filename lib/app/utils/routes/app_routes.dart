@@ -1,8 +1,8 @@
 
 import 'package:get/get.dart';
-import 'package:weather_app/app/routes/routes_path.dart';
+import 'package:weather_app/app/utils/routes/routes_path.dart';
 
-import '../ui/weather_home/weather_screen.dart';
+import '../../presentation/screens/weather_home/weather_screen.dart';
 
 
 class AppRoutes {

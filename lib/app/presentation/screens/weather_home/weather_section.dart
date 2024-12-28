@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:weather_app/app/ui/components/network_image.dart';
 import 'package:weather_app/app/utils/helper_function.dart';
-import 'package:weather_app/app/viewmodel/weather_home_viewmodel/weather_home_viewmodel.dart';
 
-import '../../utils/constant.dart';
+import '../../../utils/constant.dart';
+import '../../viewmodel/weather_home_viewmodel/weather_home_viewmodel.dart';
 import '../components/custom_text_widget.dart';
+import '../components/network_image.dart';
 
 class WeatherSection extends GetView<WeatherHomeController> {
   final double screenWidth;
@@ -24,7 +24,7 @@ class WeatherSection extends GetView<WeatherHomeController> {
         Obx(
           () => CustomText(
             text:
-                '${controller.weatherData.value.name}, ${controller.weatherData.value.sys?.country}',
+                '${controller.weatherData.value.name}, ${controller.weatherData.value.country}',
             color: Colors.white,
             fontSize: 30,
           ),
@@ -58,7 +58,7 @@ class WeatherSection extends GetView<WeatherHomeController> {
         Obx(
           () => CustomText(
             text:
-                'Feels like ${controller.weatherData.value.main?.feelsLike?.toInt()}${Constant.degreeSymbol}C',
+                'Feels like ${controller.weatherData.value.feelsLike?.toInt()}${Constant.degreeSymbol}C',
             color: Colors.white,
           ),
         ),
@@ -70,7 +70,7 @@ class WeatherSection extends GetView<WeatherHomeController> {
             Obx(
               () {
                 final iconLink = Helper.concatIconUrl(
-                    controller.weatherData.value.weather?.first.icon ?? '');
+                    controller.weatherData.value.icon ?? '');
                 if (kDebugMode) {
                   print('iconLink$iconLink');
                 }
@@ -84,7 +84,7 @@ class WeatherSection extends GetView<WeatherHomeController> {
             const SizedBox(width: 10),
             Obx(
               () => CustomText(
-                text: controller.weatherData.value.weather?.first.description ?? '',
+                text: controller.weatherData.value.description ?? '',
                 color: Colors.white,
               ),
             ),
@@ -112,12 +112,12 @@ class WeatherSection extends GetView<WeatherHomeController> {
                   children: [
                     CustomText(
                       text:
-                          'Sunrise ${Helper.toFormattedTime(controller.weatherData.value.sys?.sunrise?.toInt() ?? 0)}',
+                          'Sunrise ${Helper.toFormattedTime(controller.weatherData.value.sunrise?.toInt() ?? 0)}',
                       color: Colors.white,
                     ),
                     CustomText(
                       text:
-                          'Sunset ${Helper.toFormattedTime(controller.weatherData.value.sys?.sunset?.toInt() ?? 0)}',
+                          'Sunset ${Helper.toFormattedTime(controller.weatherData.value.sunset?.toInt() ?? 0)}',
                       color: Colors.white,
                     ),
                   ],
@@ -137,11 +137,11 @@ class WeatherSection extends GetView<WeatherHomeController> {
       children: [
         CustomText(
           text:
-              'Humidity ${controller.weatherData.value.main?.humidity}${Constant.degreeSymbol}C',
+              'Humidity ${controller.weatherData.value.humidity}${Constant.degreeSymbol}C',
           color: Colors.white,
         ),
         CustomText(
-          text: 'Pressure ${controller.weatherData.value.main?.pressure}hpa',
+          text: 'Pressure ${controller.weatherData.value.pressure}hpa',
           color: Colors.white,
         ),
         CustomText(

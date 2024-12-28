@@ -1,12 +1,12 @@
 
-class ForecastData {
+class ForecastDataDTO {
   final String? cod;
   final int? message;
   final int? cnt;
   final List<ListElement>? list;
   final City? city;
 
-  ForecastData({
+  ForecastDataDTO({
      this.cod,
      this.message,
      this.cnt,
@@ -14,7 +14,7 @@ class ForecastData {
      this.city,
   });
 
-  factory ForecastData.fromJson(Map<String, dynamic> json) => ForecastData(
+  factory ForecastDataDTO.fromJson(Map<String, dynamic> json) => ForecastDataDTO(
     cod: json['cod'] as String,
     message: json['message'] as int,
     cnt: json['cnt'] as int,

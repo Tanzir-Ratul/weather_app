@@ -5,10 +5,7 @@ import 'package:weather_app/app/utils/constant.dart';
 import '../../../../../domain/entities/weather_data.dart';
 
 
-import 'package:sqflite/sqflite.dart';
-import 'package:weather_app/app/utils/constant.dart';
 
-import '../../../../../domain/entities/weather_data.dart';
 
 class WeatherDataDAO {
   final Database db;
@@ -34,7 +31,7 @@ class WeatherDataDAO {
   /// Fetch all WeatherData
   Future<WeatherDataClass> fetchWeatherData() async {
     try {
-      final List<Map<String, dynamic>>? maps = await db?.query(Constant.tableName);
+      final List<Map<String, dynamic>>? maps = await db.query(Constant.tableName);
 
       if (maps != null && maps.isNotEmpty) {
         return WeatherDataClass.fromMap(maps.first);
